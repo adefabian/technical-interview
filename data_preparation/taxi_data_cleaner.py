@@ -1,3 +1,4 @@
+"""Helper class for preparing the nyc taxi dataset."""
 import pandas as pd
 
 
@@ -6,6 +7,7 @@ class TaxiDataCleaner:
 
     @staticmethod
     def transform_taxi_data(taxi_data: pd.DataFrame, taxi_zone_map: pd.DataFrame) -> pd.DataFrame:
+        """Transform the taxi dataset to match use case."""
         return TaxiDataCleaner._combine_taxi_data_with_taxi_zones(taxi_data, taxi_zone_map)
 
     @staticmethod
@@ -17,8 +19,8 @@ class TaxiDataCleaner:
         return taxi_data
 
 
-
 def main() -> None:
+    """Orchestrate taxi data transformation."""
     taxi_data = pd.read_parquet("./resources/yellow_taxi_trip_data/yellow_tripdata_2024-01.parquet")
     taxi_zone_data = pd.read_csv("./resources/yellow_taxi_trip_data/taxi_zone_lookup_table.csv")
 
