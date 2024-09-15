@@ -1,0 +1,57 @@
+repos:
+  - repo: "https://github.com/pre-commit/pre-commit-hooks"
+    rev: v4.4.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-added-large-files
+        exclude: (?x)^(
+          .*package-lock.json |
+          )$
+      - id: requirements-txt-fixer
+
+  ##### DOCUMENTATION
+  - repo: https://github.com/asottile/blacken-docs
+    rev: 1.16.0
+    hooks:
+      - id: blacken-docs
+
+  ##### PYTHON
+  - repo: https://github.com/asottile/reorder_python_imports
+    rev: v3.10.0
+    hooks:
+      - id: reorder-python-imports
+        args: ["--application-directories=packages:pypi"]
+  - repo: "https://github.com/psf/black"
+    rev: 23.7.0
+    hooks:
+      - id: black
+        args: [".", "-l", "120"]
+  - repo: https://github.com/DanielNoord/pydocstringformatter
+    rev: v0.7.3
+    hooks:
+      - id: pydocstringformatter
+        language_version: python3.10
+        additional_dependencies: [packaging]
+  - repo: https://github.com/PyCQA/pydocstyle
+    rev: 6.3.0
+    hooks:
+      - id: pydocstyle
+        exclude: (?x)^(
+          .*__init__.py
+          )$
+
+  ##### OTHER
+  - repo: https://github.com/pre-commit/mirrors-prettier
+    rev: v3.0.3
+    hooks:
+      - id: prettier
+        types_or:
+          - javascript
+          - ts
+          - json
+          - yaml
+        additional_dependencies:
+          - "prettier@2.7.1"
+          - "prettier-plugin-organize-imports@3.1.1"
