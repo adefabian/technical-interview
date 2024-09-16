@@ -31,7 +31,7 @@ class TaxiTripIngestionClient:
             options={"windowSize": "100 seconds", "checkpointLocation": self.checkpoint_location},
         )
 
-    def _process_batch(self, df, batchId):
+    def _process_batch(self, df, batchId) -> None:
         from awsglue import DynamicFrame
 
         if df.count() > 0:

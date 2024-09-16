@@ -62,7 +62,7 @@ class TaxiRawDataFields:
 
 @dataclass(frozen=True)
 class TaxiSilverDataFields:
-    """Helper class for storing the raw column names."""
+    """Helper class for storing the silver column names."""
 
     vendor_id: str = "vendor_id"
     pickup_datetime: str = "pickup_timestamp"
@@ -76,9 +76,14 @@ class TaxiSilverDataFields:
 
 @dataclass(frozen=True)
 class TaxiGoldDataFields(TaxiSilverDataFields):
+    """Helper class for storing the gold column names."""
+
     temp_max: str = "tempmax"
     temp_min: str = "tempmin"
 
+
 @dataclass(frozen=True)
 class WeatherDataFields:
+    """Helper class for storing weather column names."""
+
     datetime: str = "datetime"

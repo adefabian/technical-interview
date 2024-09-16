@@ -19,9 +19,8 @@ export class KafkaStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props: KafkaStackProps) {
     super(scope, id, props);
 
-    //todo names should use snake case ids can use camel case
     this.kafkaSecurityGroup = new SecurityGroup(this, "kafkaSecurityGroup", {
-      securityGroupName: "kafkaSecurityGroup",
+      securityGroupName: "kafka_security_group",
       allowAllOutbound: true,
       vpc: props.vpc,
     });
@@ -30,7 +29,7 @@ export class KafkaStack extends cdk.Stack {
       this,
       "kafkaClientSecurityGroup",
       {
-        securityGroupName: "kafkaClientSecurityGroup",
+        securityGroupName: "kafka_client_security_group",
         allowAllOutbound: true,
         vpc: props.vpc,
       }
@@ -59,7 +58,7 @@ export class KafkaStack extends cdk.Stack {
           },
         },
       },
-      clusterName: "TransactionsKafkaCluster",
+      clusterName: "transactions_kafka_cluster",
       kafkaVersion: "2.7.0",
       numberOfBrokerNodes: 2,
     });

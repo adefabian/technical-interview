@@ -80,10 +80,16 @@ class TaxiDataFilter:
 
     def write_stream_to_s3(self, df: DataFrame) -> None:
         """Write the batch to s3."""
-        query = df.writeStream.format("delta").outputMode("append").option(
-            "checkpointLocation", self.checkpoint_location
-        ).partitionBy(TaxiSilverDataFields.vendor_id).trigger(processingTime="100 seconds").start(self.output_path)
+        query = (
+            df.writeStream.format("delta")
+            .outputMode("append")
+            .option("checkpointLocation", self.checkpoint_location)
+            .partitionBy(TaxiSilverDataFields.vendor_id)
+            .trigger(processingTime="100 seconds")
+            .start(self.output_path)
+        )
         query.awaitTermination()
+
 
 def main():
     """Process all new taxi data and stores it inside delta lake."""
@@ -94,7 +100,9 @@ def main():
     job = Job(glue)
     job.init(job_args["JOB_NAME"], job_args)
 
-    taxi_data_filter_client = TaxiDataFilter(spark, job_args["INPUT_PATH"], job_args["OUTPUT_PATH"], job_args["CHECKPOINT_LOCATION"])
+    taxi_data_filter_client = TaxiDataFilter(
+        spark, job_args["INPUT_PATH"], job_args["OUTPUT_PATH"], job_args["CHECKPOINT_LOCATION"]
+    )
     taxi_data = taxi_data_filter_client.get_raw_taxi_data_stream()
 
     transformed_taxi_data = taxi_data_filter_client.transform_taxi_raw_data(taxi_data)
