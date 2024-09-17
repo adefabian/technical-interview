@@ -1,5 +1,6 @@
 """Ingest the raw taxi trip data into delta lake."""
 from pyspark.sql import DataFrame
+from pyspark.sql import SparkSession
 from shared.config import RAW_TAXI_DATA_SCHEMA
 from shared.utils import TaxiRawDataFields
 from shared.utils import Util
@@ -8,14 +9,13 @@ from shared.utils import Util
 class TaxiTripIngestionClient:
     """Raw taxi data ingest client."""
 
-    def __init__(self, glue, spark, path, checkpoint_location, db, table):
+    def __init__(self, glue, spark: SparkSession, path: str, checkpoint_location: str, output_path: str):
         """Create taxi ingestion client obj."""
         self.glue = glue
         self.spark = spark
         self.input_path = path
         self.checkpoint_location = checkpoint_location
-        self.db = db
-        self.table = table
+        self.output_path = output_path
 
     def get_taxi_data_stream(self) -> DataFrame:
         """Create a spark stream by reading all data in s3 path."""
@@ -25,26 +25,14 @@ class TaxiTripIngestionClient:
 
     def write_stream_to_s3(self, df: DataFrame) -> None:
         """Write the batch to s3."""
-        self.glue.forEachBatch(
-            frame=df,
-            batch_function=self._process_batch,
-            options={"windowSize": "100 seconds", "checkpointLocation": self.checkpoint_location},
+        (
+            df.writeStream.format("delta")
+            .option("checkpointLocation", "/path/to/bronze/checkpoint")
+            .outputMode("append")
+            .option("mergeSchema", "true")
+            .start(self.output_path)
+            .awaitTermination()
         )
-
-    def _process_batch(self, df, batchId) -> None:
-        from awsglue import DynamicFrame
-
-        if df.count() > 0:
-            dy = DynamicFrame.fromDF(df, self.glue, "from_data_frame")
-            additionalOptions_datasink = {"enableUpdateCatalog": True, "partitionKeys": [TaxiRawDataFields.vendor_id]}
-
-            datasink = self.glue.write_dynamic_frame.from_catalog(
-                frame=dy,
-                database=self.db,
-                table_name=self.table,
-                transformation_ctx="datasink_kafka",
-                additional_options=additionalOptions_datasink,
-            )
 
 
 def main() -> None:
@@ -63,8 +51,7 @@ def main() -> None:
         "spark": spark,
         "path": job_args["INPUT_PATH"],
         "checkpoint_location": job_args["CHECKPOINT_LOCATION"],
-        "db": job_args["TAXI_DB"],
-        "table": job_args["BRONZE_TAXI_TABLE"],
+        "output_path": job_args["OUTPUT_PATH"],
     }
 
     taxi_data_stream_client = TaxiTripIngestionClient(**taxi_trip_client_args)
